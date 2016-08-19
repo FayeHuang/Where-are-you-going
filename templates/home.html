@@ -1,0 +1,47 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>GPS controller</title>
+    <!-- Latest compiled and minified CSS -->
+    
+    <link rel="stylesheet" type="text/css" href="{% static 'main.css' %}">
+    <script type="text/javascript" src=https://code.jquery.com/jquery-2.2.0.min.js></script>
+    <script src="https://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script type="text/javascript">
+        Number.prototype.toRad = function() {
+            return this * Math.PI / 180;
+        }
+
+        Number.prototype.toDeg = function() {
+            return this * 180 / Math.PI;
+        }
+        
+        google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
+            dist = dist / 6371;  
+            brng = brng.toRad();  
+    
+            var lat1 = this.lat().toRad(), lon1 = this.lng().toRad();
+    
+            var lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) + 
+                                  Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
+    
+            var lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) *
+                                      Math.cos(lat1), 
+                                      Math.cos(dist) - Math.sin(lat1) *
+                                      Math.sin(lat2));
+    
+            if (isNaN(lat2) || isNaN(lon2)) return null;
+            return new google.maps.LatLng(lat2.toDeg(), lon2.toDeg());
+        }
+    </script>
+
+  </head>
+
+  <body>
+    <div id="react-app" style="height:100%;"></div>
+    <script src="{% static 'main.js' %}"></script>
+    
+  </body>
+</html>
