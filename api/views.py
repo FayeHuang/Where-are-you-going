@@ -3,7 +3,7 @@ from django.http import HttpResponse
 import xml.etree.cElementTree as ET
 import urllib2
 import json
-#import appalescript
+import applescript
 
 GPX_NAME = 'myLocation'
 GPX_FILE = GPX_NAME + '.gpx'
@@ -14,7 +14,7 @@ def api_gps(request):
             lat = request.GET['lat']
             lng = request.GET['lng']
             generateXML(lat, lng)
-            #updatePhoneGps()
+            updatePhoneGps()
             return HttpResponse( json.dumps({'success':True}) )
         return HttpResponse( json.dumps({'success':False}) )
 
@@ -34,8 +34,9 @@ def generateXML(lat, lng):
     ET.ElementTree(gpx).write(GPX_FILE)
     
 
-#def updatePhoneGps():
-    # cmd = ('tell application "System Events" to tell process "Xcode" \n' + 
-    #       'click menu item "'+ GPX_NAME +'" of menu 1 of menu item "Simulate Location" of menu 1 of menu bar item "Debug" of menu bar 1 \n' +
-    #       'end tell')
-    # applescript.AppleScript(cmd).run()
+def updatePhoneGps():
+    cmd = ('tell application "System Events" to tell process "Xcode" \n' + 
+           'click menu item "'+ GPX_NAME +'" of menu 1 of menu item "Simulate Location" of menu 1 of menu bar item "Debug" of menu bar 1 \n' +
+           'end tell')
+    applescript.AppleScript(cmd).run()
+
