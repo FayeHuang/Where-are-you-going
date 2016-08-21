@@ -3,6 +3,7 @@ from django.http import HttpResponse
 import xml.etree.cElementTree as ET
 import urllib2
 import json
+import time
 import applescript
 
 GPX_NAME = 'myLocation'
@@ -14,7 +15,7 @@ def api_gps(request):
             lat = request.GET['lat']
             lng = request.GET['lng']
             generateXML(lat, lng)
-            updatePhoneGps()
+            # updatePhoneGps()
             return HttpResponse( json.dumps({'success':True}) )
         return HttpResponse( json.dumps({'success':False}) )
 
@@ -26,17 +27,18 @@ def api_default_gps(request):
         lng = e[0].attrib.get('lon')
         return HttpResponse( json.dumps({ 'success':True, 'lat':lat, 'lng':lng }) )
 
+        
+def api_updateDeviceGps(request):
+    cmd = ('tell application "System Events" to tell process "Xcode" \n' + 
+          'click menu item "'+ GPX_NAME +'" of menu 1 of menu item "Simulate Location" of menu 1 of menu bar item "Debug" of menu bar 1 \n' +
+          'end tell')
+    applescript.AppleScript(cmd).run()
+    #time.sleep(3)
+    return HttpResponse( json.dumps({'success':True}) )
+
 
 def generateXML(lat, lng):
     gpx = ET.Element("gpx", version="1.1", creator="Xcode")
     wpt = ET.SubElement(gpx, "wpt", lat=lat, lon=lng)
     ET.SubElement(wpt, "name").text = GPX_NAME
     ET.ElementTree(gpx).write(GPX_FILE)
-    
-
-def updatePhoneGps():
-    cmd = ('tell application "System Events" to tell process "Xcode" \n' + 
-           'click menu item "'+ GPX_NAME +'" of menu 1 of menu item "Simulate Location" of menu 1 of menu bar item "Debug" of menu bar 1 \n' +
-           'end tell')
-    applescript.AppleScript(cmd).run()
-

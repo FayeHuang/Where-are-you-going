@@ -24,6 +24,8 @@ export default class App extends Component {
          // 中壢中正公園
          lastLat: 24.959225,
          lastLng: 121.226558,
+         nextLat: 24.959225,
+         nextLng: 121.226558,
          center: {lat:24.959225, lng:121.226558},
          requestId: 0,
       }
@@ -44,28 +46,40 @@ export default class App extends Component {
       // console.log('up button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
       let pointB = pointA.destinationPoint(0, this.props.radius);
-      this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
+         this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
+         this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      }
    };
    
    handleDownButtonClick = () => {
       // console.log('down button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
       let pointB = pointA.destinationPoint(180, this.props.radius);
-      this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
+         this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
+         this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      }
    };
    
    handleRightButtonClick = () => {
       // console.log('right button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
       let pointB = pointA.destinationPoint(90, this.props.radius);
-      this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
+         this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
+         this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      }
    };
    
    handleLeftButtonClick = () => {
       // console.log('left button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
       let pointB = pointA.destinationPoint(270, this.props.radius);
-      this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
+         this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
+         this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
+      }
    };
    
    changeGps = (lat, lng, requestId) => {
@@ -78,8 +92,24 @@ export default class App extends Component {
          //  console.log("my request id="+requestId+", current request id="+this.state.requestId);
            if( (requestId >= this.state.requestId) && data['success']) {
             //  console.log("move, request id="+requestId);
-              this.setState({ lastLat:lat, lastLng:lng });
+              //this.setState({ lastLat:lat, lastLng:lng });
+              this.updateDeviceGps(lat, lng, requestId);
            }
+        },
+        error: (xhr, status, err) => {
+          console.error(this.props.apiRecommend, status, err.toString());
+        }
+      });
+   };
+   
+   updateDeviceGps = (lat, lng, requestId) => {
+      $.ajax({
+        url: '/api/gps/device/update',
+        dataType: 'json',
+        success: (data) => {
+          //console.log(data);
+          console.log(requestId);
+          this.setState({ lastLat:lat, lastLng:lng });
         },
         error: (xhr, status, err) => {
           console.error(this.props.apiRecommend, status, err.toString());
@@ -95,7 +125,7 @@ export default class App extends Component {
         success: (data) => {
           let lng = parseFloat(data.lng);
           let lat = parseFloat(data.lat);
-          this.setState({ lastLat:lat, lastLng:lng, center:{lat:lat, lng:lng} });
+          this.setState({ lastLat:lat, lastLng:lng, nextLng:lng, nextLat:lat, center:{lat:lat, lng:lng} });
         },
         error: (xhr, status, err) => {
           console.error(this.props.apiRecommend, status, err.toString());
