@@ -6,7 +6,7 @@ import json
 import time
 import urllib2
 from bs4 import BeautifulSoup
-import applescript
+import os
 
 GPX_NAME = 'myLocation'
 GPX_FILE = GPX_NAME + '.gpx'
@@ -32,11 +32,7 @@ def api_default_gps(request):
         
 def api_updateDeviceGps(request):
     if request.method == "GET":
-        cmd = ('tell application "System Events" to tell process "Xcode" \n' + 
-              'click menu item "'+ GPX_NAME +'" of menu 1 of menu item "Simulate Location" of menu 1 of menu bar item "Debug" of menu bar 1 \n' +
-              'end tell')
-        applescript.AppleScript(cmd).run()
-        #time.sleep(0.5)
+        os.system('osascript autoclick.applescript')
         return HttpResponse( json.dumps({'success':True}) )
     
 def api_getPokemonLocation(request):
@@ -53,7 +49,6 @@ def api_getPokemonLocation(request):
                 response = urllib2.urlopen(url, timeout=3)
                 data = json.loads(response.read())
                 if response.getcode() == 200:
-                    #print( "[DEBUG] RM response = {0}".format(data) )
                     result['success'] = True
                     result['message'] = []
                     pokemonData = loadPokeRadarData('pokemon-search-list.html')
@@ -92,7 +87,7 @@ def loadPokeRadarData(file):
     html_doc = f.read()
     f.close()
     # refs : https://www.crummy.com/software/BeautifulSoup/bs4/doc.zh/#id5
-    soup = BeautifulSoup(html_doc, "html5lib")
+    soup = BeautifulSoup(html_doc)
     result = {}
     for li in soup.find_all('li'):
         id = int(li.a['data-pokemon-id'])
