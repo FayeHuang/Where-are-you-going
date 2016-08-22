@@ -4,6 +4,7 @@ import ArrowBack from 'material-ui/svg-icons/navigation/arrow-back';
 import ArrowDownward from 'material-ui/svg-icons/navigation/arrow-downward';
 import ArrowForward from 'material-ui/svg-icons/navigation/arrow-forward';
 import ArrowUpward from 'material-ui/svg-icons/navigation/arrow-upward';
+import Subheader from 'material-ui/Subheader';
 
 
 export default class ArrowKey extends Component {
@@ -43,20 +44,25 @@ export default class ArrowKey extends Component {
   render() {
     const styles = {
         largeIcon: {
-            width: 48,
-            height: 48,
+            width: 42,
+            height: 42,
         },
         large: {
-            width: 96,
-            height: 96,
-            padding: 24,
-            backgroundColor: '#c7bec7',
-            border: '1px white solid',
-            opacity:0.95
+            width: 84,
+            height: 84,
+            padding: 21,
+            backgroundColor: 'white',
+            border: '2px solid #888888',
+            opacity:0.95,
+            margin: 0.5
         }
     }
     return (
-        <div style={{position:'absolute', bottom:10, right:40, zIndex:999}}> 
+      //style={{position:'absolute', bottom:10, right:0, zIndex:999}}
+        <div style={{position:'absolute', bottom:10, width:300, left:0, right:0}}>
+            <div style={{padding:'20px 0 0 10px'}}>
+              <Subheader>Walk</Subheader>
+            </div>
             <center>
                 <IconButton
                     iconStyle={styles.largeIcon}
@@ -66,7 +72,7 @@ export default class ArrowKey extends Component {
                     <ArrowUpward />
                 </IconButton>
             </center>
-            <div>
+            <center>
                 <IconButton
                     iconStyle={styles.largeIcon}
                     style={styles.large}
@@ -90,7 +96,7 @@ export default class ArrowKey extends Component {
                 >
                     <ArrowForward />
                 </IconButton>
-            </div>
+            </center>
         </div>
     );
   }
