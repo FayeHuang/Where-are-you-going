@@ -22,18 +22,20 @@ def api_gps(request):
         return HttpResponse( json.dumps({'success':False}) )
 
 
-def api_default_gps(request):
+def api_get_gps(request):
     if request.method == "GET":
         e = ET.parse(GPX_FILE).getroot()
         lat = e[0].attrib.get('lat')
         lng = e[0].attrib.get('lon')
-        return HttpResponse( json.dumps({ 'success':True, 'lat':lat, 'lng':lng }) )
+        return HttpResponse( json.dumps({'success':True, 'lat':lat, 'lng':lng }) )
+    return HttpResponse( json.dumps({'success':False}) )
 
-        
+
 def api_updateDeviceGps(request):
     if request.method == "GET":
         os.system('osascript autoclick.applescript')
         return HttpResponse( json.dumps({'success':True}) )
+
     
 def api_getPokemonLocation(request):
     if request.method == "GET":
