@@ -14,14 +14,12 @@ export default class App extends Component {
       center: PropTypes.object,
       zoom: PropTypes.number,
       greatPlaceCoords: PropTypes.object,
-      walkDistance: PropTypes.number,
       pokemonDistance: PropTypes.number,
    };
    
    static defaultProps = {
       center: {lat:24.959225, lng:121.226558},
       zoom: 19,
-      walkDistance: 0.005, //km
       pokemonDistance: 0.3, //km
    };
    
@@ -36,6 +34,7 @@ export default class App extends Component {
          center: {lat:24.959225, lng:121.226558},
          requestId: 0,
          pokemons: [],
+         moveDistance: 0.005, //km
       }
    }
    
@@ -53,7 +52,7 @@ export default class App extends Component {
    handleUpButtonClick = () => {
       // console.log('up button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
-      let pointB = pointA.destinationPoint(0, this.props.walkDistance);
+      let pointB = pointA.destinationPoint(0, this.state.moveDistance);
       if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
          this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
          this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
@@ -63,7 +62,7 @@ export default class App extends Component {
    handleDownButtonClick = () => {
       // console.log('down button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
-      let pointB = pointA.destinationPoint(180, this.props.walkDistance);
+      let pointB = pointA.destinationPoint(180, this.state.moveDistance);
       if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
          this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
          this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
@@ -73,7 +72,7 @@ export default class App extends Component {
    handleRightButtonClick = () => {
       // console.log('right button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
-      let pointB = pointA.destinationPoint(90, this.props.walkDistance);
+      let pointB = pointA.destinationPoint(90, this.state.moveDistance);
       if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
          this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
          this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
@@ -83,7 +82,7 @@ export default class App extends Component {
    handleLeftButtonClick = () => {
       // console.log('left button click');
       let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
-      let pointB = pointA.destinationPoint(270, this.props.walkDistance);
+      let pointB = pointA.destinationPoint(270, this.state.moveDistance);
       if (pointB.lng() != this.state.nextLng || pointB.lat() != this.state.nextLat) {
          this.setState({nextLat:pointB.lat(), nextLng:pointB.lng()});
          this.changeGps(pointB.lat(), pointB.lng(), this.state.requestId + 1);
@@ -98,6 +97,10 @@ export default class App extends Component {
          this.setState({nextLat:places[0].lat, nextLng:places[0].lng});
          this.changeGps(places[0].lat, places[0].lng, this.state.requestId + 1);
       }
+   };
+   
+   handleMoveDistanceChange = (value) => {
+      this.setState({moveDistance:value/1000})
    };
    
    changeGps = (lat, lng, requestId) => {
@@ -163,7 +166,7 @@ export default class App extends Component {
    componentDidMount() {
       window.addEventListener('keydown', this.handleKeyPress);
       $.ajax({
-        url: '/api/gps/default',
+        url: '/api/gps/current',
         dataType: 'json',
         success: (data) => {
           let lng = parseFloat(data.lng);
@@ -172,7 +175,7 @@ export default class App extends Component {
           this.getPokemonLocation(lat, lng);
         },
         error: (xhr, status, err) => {
-          console.error(this.props.apiRecommend, status, err.toString());
+          console.error('/api/gps/current', status, err.toString());
         }
       });
    };
@@ -199,6 +202,8 @@ export default class App extends Component {
                   <CurrentLocationText lat={this.state.lastLat} lng={this.state.lastLng} />
                   
                   <ArrowKey 
+                     moveDistance={this.state.moveDistance}
+                     onMoveDistanceChange={this.handleMoveDistanceChange}
                      onUpButtonClick={this.handleUpButtonClick}
                      onDownButtonClick={this.handleDownButtonClick}
                      onRightButtonClick={this.handleRightButtonClick}

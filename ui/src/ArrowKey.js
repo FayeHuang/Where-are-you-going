@@ -5,16 +5,27 @@ import ArrowDownward from 'material-ui/svg-icons/navigation/arrow-downward';
 import ArrowForward from 'material-ui/svg-icons/navigation/arrow-forward';
 import ArrowUpward from 'material-ui/svg-icons/navigation/arrow-upward';
 import Subheader from 'material-ui/Subheader';
+import TextField from 'material-ui/TextField';
 
 
 export default class ArrowKey extends Component {
   static propTypes = {
+    moveDistance: PropTypes.number, // km
+    onMoveDistanceChange: PropTypes.func,
+    onUpButtonClick: PropTypes.func,
+    onDownButtonClick: PropTypes.func,
+    onRightButtonClick: PropTypes.func,
+    onLeftButtonClick: PropTypes.func,
   };
 
-  static defaultProps = {};
+  static defaultProps = {
+  };
 
   constructor(props) {
     super(props);
+    this.state = {
+      moveDistanceVaild: true
+    };
   }
   
   onUpButtonClick = () => {
@@ -40,6 +51,17 @@ export default class ArrowKey extends Component {
       this.props.onLeftButtonClick();
     }
   };
+  
+  onMoveDistanceChange = (event) => {
+    if (parseFloat(event.target.value)) {
+      this.setState({moveDistanceVaild:true});
+      if (this.props.onMoveDistanceChange)
+        this.props.onMoveDistanceChange(parseFloat(event.target.value));
+    }
+    else {
+      this.setState({moveDistanceVaild:false});
+    }
+  };
 
   render() {
     const styles = {
@@ -63,6 +85,16 @@ export default class ArrowKey extends Component {
             <div style={{padding:'20px 0 0 10px'}}>
               <Subheader>Walk</Subheader>
             </div>
+            <TextField
+              floatingLabelText="move distance (meters)"
+              floatingLabelFixed={true}
+              errorText={ this.state.moveDistanceVaild ? "" : "invaild value" }
+              style={{paddingLeft:20, width:200}}
+              onChange={this.onMoveDistanceChange}
+              underlineStyle={{borderColor:'white'}}
+              defaultValue={this.props.moveDistance*1000} // km to meters
+              floatingLabelStyle={{fontSize:18}}
+            />
             <center>
                 <IconButton
                     iconStyle={styles.largeIcon}
