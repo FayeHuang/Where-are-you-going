@@ -132,7 +132,6 @@ export default class App extends Component {
         success: (data) => {
           if( (requestId == this.state.requestId) && data['success']) {
             this.setState({ lastLat:lat, lastLng:lng, center:{lat:lat, lng:lng} });
-            this.getPokemonLocation(lat, lng);
           }
         },
         error: (xhr, status, err) => {
@@ -141,8 +140,8 @@ export default class App extends Component {
       });
    };
    
-   getPokemonLocation = (centerLat, centerLng) => {
-      let pointA = new google.maps.LatLng(centerLat, centerLng);
+   getPokemonLocation = () => {
+      let pointA = new google.maps.LatLng(this.state.center.lat, this.state.center.lng);
       let minLatitude = pointA.destinationPoint(180, this.props.pokemonDistance).lat();
       let maxLatitude = pointA.destinationPoint(0, this.props.pokemonDistance).lat();
       let minLongitude = pointA.destinationPoint(270, this.props.pokemonDistance).lng();
@@ -158,7 +157,7 @@ export default class App extends Component {
             this.setState({pokemons:data['message']})
         },
         error: (xhr, status, err) => {
-          console.error(this.props.apiRecommend, status, err.toString());
+          console.error('/api/gps/pokemon', status, err.toString());
         }
       });
    }
@@ -172,16 +171,18 @@ export default class App extends Component {
           let lng = parseFloat(data.lng);
           let lat = parseFloat(data.lat);
           this.setState({ lastLat:lat, lastLng:lng, nextLng:lng, nextLat:lat, center:{lat:lat, lng:lng} });
-          this.getPokemonLocation(lat, lng);
+          //this.getPokemonLocation(lat, lng);
         },
         error: (xhr, status, err) => {
           console.error('/api/gps/current', status, err.toString());
         }
       });
+      this.interval = setInterval(this.getPokemonLocation, 1000);
    };
    
    componentWillUnmount() {
       window.removeEventListener('keydown', this.handleKeyPress);
+      clearInterval(this.interval);
    };
    
    
