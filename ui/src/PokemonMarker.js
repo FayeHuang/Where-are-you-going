@@ -1,8 +1,5 @@
 import React, {PropTypes, Component} from 'react';
 
-// import ActionPets from 'material-ui/svg-icons/action/pets';
-
-
 export default class PokemonMakers extends Component {
   
   static propTypes = {};
@@ -15,7 +12,9 @@ export default class PokemonMakers extends Component {
 
   render() {
     return (
-       <div><img src={this.props.image} style={{width:60, height:60}} /></div>
+      <div>
+        <img src={this.props.image} style={{width:60, height:60}} />
+      </div>
     );
   }
 }
