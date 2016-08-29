@@ -132,6 +132,7 @@ export default class App extends Component {
         success: (data) => {
           if( (requestId == this.state.requestId) && data['success']) {
             this.setState({ lastLat:lat, lastLng:lng, center:{lat:lat, lng:lng} });
+            this.getPokemonLocation();
           }
         },
         error: (xhr, status, err) => {
@@ -177,7 +178,7 @@ export default class App extends Component {
           console.error('/api/gps/current', status, err.toString());
         }
       });
-      this.interval = setInterval(this.getPokemonLocation, 1000);
+      this.interval = setInterval(this.getPokemonLocation, 3000);
    };
    
    componentWillUnmount() {
