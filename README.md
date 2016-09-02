@@ -34,7 +34,7 @@ Where are you going 是可以透過網頁的操作改變 iOS 裝置(ex: iPhone, 
     
         **`$ sudo easy_install pip`**
     
-        **`$ sudo pip install django==1.9`**
+        **`$ sudo pip install django==1.9 bs4`**
     
     3.  移至 Where are you going 資料夾，執行
     
