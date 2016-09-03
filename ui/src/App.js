@@ -51,11 +51,17 @@ export default class App extends Component {
       if (event.keyCode == 38)
          this.handleUpButtonClick();
       else if (event.keyCode == 37)
-         this.handleLeftButtonClick()
+         this.handleLeftButtonClick();
       else if (event.keyCode == 39)
-         this.handleRightButtonClick()
+         this.handleRightButtonClick();
       else if (event.keyCode == 40)
-         this.handleDownButtonClick()
+         this.handleDownButtonClick();
+      else if (event.keyCode == 32) {
+         if (this.state.autoMovingPause)
+            this.handlePlayButtonClick();
+         else
+            this.handlePauseButtonClick();
+      }
    };
    
    handleUpButtonClick = () => {
