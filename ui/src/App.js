@@ -7,6 +7,8 @@ import ArrowKey from './ArrowKey';
 import MoveToSomewhere from './MoveToSomewhere';
 import AppBar from 'material-ui/AppBar';
 import CurrentLocationText from './CurrentLocationText';
+import AutoMoving from './AutoMoving';
+import AutoMovingMarker from './AutoMovingMarker';
 
 
 export default class App extends Component {
@@ -35,6 +37,12 @@ export default class App extends Component {
          requestId: 0,
          pokemons: [],
          moveDistance: 0.005, //km
+         autoMoving: false,
+         autoMovingPoints: [],
+         autoMovingIndex: 0,
+         autoMovingPause: false,
+         autoMovingPlayDisabled: true,
+         autoMovingPauseDisabled: true,
       }
    }
    
@@ -153,7 +161,6 @@ export default class App extends Component {
         data: {minLatitude:minLatitude ,maxLatitude:maxLatitude ,minLongitude:minLongitude ,maxLongitude:maxLongitude },
         dataType: 'json',
         success: (data) => {
-          console.log(data);
           if (data['success'] && data['message'])
             this.setState({pokemons:data['message']})
         },
@@ -186,10 +193,65 @@ export default class App extends Component {
       clearInterval(this.interval);
    };
    
+   handleMapClick = (val) => {
+      if (this.state.autoMoving) {
+         var points = this.state.autoMovingPoints;
+         points.push({lat:val.lat, lng:val.lng});
+         this.setState({autoMovingPoints:points});
+         if (this.state.autoMovingPause)
+            this.setState({autoMovingPlayDisabled:false});
+      }
+   };
+   
+   handleAutoMoving = () => {
+      if (this.state.autoMoving) {
+         this.setState({autoMoving:false, autoMovingPauseDisabled:true, autoMovingPlayDisabled:true, autoMovingPause:true});
+      }
+      else {
+         if (this.state.autoMovingPoints.length > 0)
+            this.setState({autoMoving:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false, autoMovingPause:true});
+         else
+            this.setState({autoMoving:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:true, autoMovingPause:true});
+      }
+   };
+   
+   handlePlayButtonClick = () => {
+      this.setState({autoMovingPause:false, autoMovingPauseDisabled:false, autoMovingPlayDisabled:true});
+      const autoMovingDistance = 4; // meters
+      var autoMoving = setInterval( () => {
+         if (!this.state.autoMovingPause) {
+            let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
+            let targetPointIndex = this.state.autoMovingIndex;
+            let pointB = new google.maps.LatLng(this.state.autoMovingPoints[targetPointIndex].lat, this.state.autoMovingPoints[targetPointIndex].lng);
+            let heading = google.maps.geometry.spherical.computeHeading(pointA, pointB);
+            let pointA1 = google.maps.geometry.spherical.computeOffset(pointA, autoMovingDistance, heading);
+            this.changeGps(pointA1.lat(), pointA1.lng(), this.state.requestId + 1);
+            let distanceA1toB = google.maps.geometry.spherical.computeDistanceBetween(pointA1,pointB); //meters
+            if ( distanceA1toB < autoMovingDistance ) {
+               if (targetPointIndex+1 == this.state.autoMovingPoints.length) {
+                  clearInterval(autoMoving);
+                  this.setState({autoMovingPause:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false});
+               }
+               else
+                  this.setState({autoMovingIndex:targetPointIndex+1})
+            }
+         }
+         else
+            clearInterval(autoMoving);
+      },1000);
+   }
+   
+   handlePauseButtonClick = () => {
+      this.setState({autoMovingPause:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false});
+   }
+   
    
    render() {
       const pokemonMarkers = this.state.pokemons.map((marker, index) => {
          return ( <PokemonMarker key={index} lat={marker.lat} lng={marker.lng} image={marker.image} name={marker.name} /> )
+      });
+      const autoMovingMarkers = this.state.autoMovingPoints.map((marker, index) => {
+         return ( <AutoMovingMarker key={index} lat={marker.lat} lng={marker.lng} text={index+1} /> )
       });
       return(
          <MuiThemeProvider>
@@ -200,7 +262,19 @@ export default class App extends Component {
                      showMenuIconButton={false}
                   />
                   
+                  <AutoMoving 
+                     onAutoMovingToggle={this.handleAutoMoving} 
+                     enbleAutoMoving={this.state.autoMoving} 
+                     points={this.state.autoMovingPoints} 
+                     playButtonDisabled={this.state.autoMovingPlayDisabled}
+                     pauseButtonDisabled={this.state.autoMovingPauseDisabled}
+                     onPlayButtonClick={this.handlePlayButtonClick}
+                     onPauseButtonClick={this.handlePauseButtonClick}
+                     targetIndex={this.state.autoMovingIndex}
+                  />
+                  
                   <MoveToSomewhere onPlacesChanged={this.handleMoveToSomewhere}/>
+                  
                   <CurrentLocationText lat={this.state.lastLat} lng={this.state.lastLng} />
                   
                   <ArrowKey 
@@ -217,9 +291,11 @@ export default class App extends Component {
                     defaultCenter={this.props.center}
                     defaultZoom={this.props.zoom}
                     center={this.state.center}
+                    onClick={this.handleMapClick}
                   >
                     {pokemonMarkers}
                     <MyMarker lat={this.state.lastLat} lng={this.state.lastLng} />
+                    { this.state.autoMoving ? autoMovingMarkers:false }
                   </GoogleMap>
                </div>
             </div>
