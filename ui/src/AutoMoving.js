@@ -4,7 +4,8 @@ import Toggle from 'material-ui/Toggle';
 import IconButton from 'material-ui/IconButton';
 import PlayArrow from 'material-ui/svg-icons/av/play-arrow';
 import Pause from 'material-ui/svg-icons/av/pause';
-
+import Checkbox from 'material-ui/Checkbox';
+import {ToolbarSeparator} from 'material-ui/Toolbar';
 
 export default class AutoMoving extends React.Component {
   
@@ -13,36 +14,32 @@ export default class AutoMoving extends React.Component {
   
   constructor(props) {
     super(props);
-    // this.state = {
-    //   playButtonDisabled: this.props.defaultPlayButtonDisabled,
-    //   pauseButtonDisabled: this.props.defaultPauseButtonDisabled,
-    // };
   }
   
   onAutoMovingToggle = () => {
     if (this.props.onAutoMovingToggle) {
         this.props.onAutoMovingToggle();
     }
-    
-    // if (this.state.playButtonDisabled)
-    //     this.setState({playButtonDisabled:false});
-    // else
-    //     this.setState({playButtonDisabled:true, pauseButtonDisabled:true});
   }
   
   onPlayButtonClick = () => {
     if (this.props.onPlayButtonClick) {
         this.props.onPlayButtonClick();
     } 
-    // this.setState({playButtonDisabled:true, pauseButtonDisabled:false});
   }
   
   onPauseButtonClick = () => {
     if (this.props.onPauseButtonClick) {
         this.props.onPauseButtonClick();
     }
-    // this.setState({playButtonDisabled:false, pauseButtonDisabled:true});
-  }
+  };
+  
+  onLoopCheck = (event, isInputChecked) => {
+    if (this.props.onLoopCheck) {
+        this.props.onLoopCheck(isInputChecked);
+    }
+  };
+  
   
   render() {
     const pointsList = this.props.points.map((marker, index) => {
@@ -61,10 +58,20 @@ export default class AutoMoving extends React.Component {
             </Subheader>
             <div style={this.props.enbleAutoMoving ? {}:{display:'none'}}>
                 <div style={{paddingLeft:10}}>Click map to add moving points</div>
+                
                 {pointsList}
+                
+                <Checkbox
+                  label="Loop"
+                  style={{paddingLeft:10, width:78, display:'inline-block'}}
+                  onCheck={this.onLoopCheck}
+                  defaultChecked={this.props.deaultLoopChecked}
+                />
+                <ToolbarSeparator style={{verticalAlign:'top'}}/>
                 <IconButton disabled={this.props.playButtonDisabled} onClick={this.onPlayButtonClick}>
                     <PlayArrow />
                 </IconButton>
+                
                 <IconButton disabled={this.props.pauseButtonDisabled} onClick={this.onPauseButtonClick}>
                     <Pause />
                 </IconButton>

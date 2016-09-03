@@ -43,6 +43,7 @@ export default class App extends Component {
          autoMovingPause: false,
          autoMovingPlayDisabled: true,
          autoMovingPauseDisabled: true,
+         autoMovingLoop: true,
       }
    }
    
@@ -229,8 +230,12 @@ export default class App extends Component {
             let distanceA1toB = google.maps.geometry.spherical.computeDistanceBetween(pointA1,pointB); //meters
             if ( distanceA1toB < autoMovingDistance ) {
                if (targetPointIndex+1 == this.state.autoMovingPoints.length) {
-                  clearInterval(autoMoving);
-                  this.setState({autoMovingPause:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false});
+                  if (this.state.autoMovingLoop)
+                     this.setState({autoMovingIndex:0});
+                  else {
+                     clearInterval(autoMoving);
+                     this.setState({autoMovingPause:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false, autoMovingIndex:0});
+                  }
                }
                else
                   this.setState({autoMovingIndex:targetPointIndex+1})
@@ -243,7 +248,11 @@ export default class App extends Component {
    
    handlePauseButtonClick = () => {
       this.setState({autoMovingPause:true, autoMovingPauseDisabled:true, autoMovingPlayDisabled:false});
-   }
+   };
+   
+   handleLoopCheck = (checked) => {
+      this.setState({autoMovingLoop:checked});
+   };
    
    
    render() {
@@ -271,6 +280,8 @@ export default class App extends Component {
                      onPlayButtonClick={this.handlePlayButtonClick}
                      onPauseButtonClick={this.handlePauseButtonClick}
                      targetIndex={this.state.autoMovingIndex}
+                     onLoopCheck={this.handleLoopCheck}
+                     deaultLoopChecked={this.state.autoMovingLoop}
                   />
                   
                   <MoveToSomewhere onPlacesChanged={this.handleMoveToSomewhere}/>
@@ -299,6 +310,7 @@ export default class App extends Component {
                   </GoogleMap>
                </div>
             </div>
+            
          </MuiThemeProvider>
       )
    }
