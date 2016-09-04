@@ -44,6 +44,7 @@ export default class App extends Component {
          autoMovingPlayDisabled: true,
          autoMovingPauseDisabled: true,
          autoMovingLoop: true,
+         autoMovingSpeed: 4, // meter/s
       }
    }
    
@@ -224,17 +225,16 @@ export default class App extends Component {
    
    handlePlayButtonClick = () => {
       this.setState({autoMovingPause:false, autoMovingPauseDisabled:false, autoMovingPlayDisabled:true});
-      const autoMovingDistance = 4; // meters
       var autoMoving = setInterval( () => {
          if (!this.state.autoMovingPause) {
             let pointA = new google.maps.LatLng(this.state.lastLat, this.state.lastLng);
             let targetPointIndex = this.state.autoMovingIndex;
             let pointB = new google.maps.LatLng(this.state.autoMovingPoints[targetPointIndex].lat, this.state.autoMovingPoints[targetPointIndex].lng);
             let heading = google.maps.geometry.spherical.computeHeading(pointA, pointB);
-            let pointA1 = google.maps.geometry.spherical.computeOffset(pointA, autoMovingDistance, heading);
+            let pointA1 = google.maps.geometry.spherical.computeOffset(pointA, this.state.autoMovingSpeed, heading);
             this.changeGps(pointA1.lat(), pointA1.lng(), this.state.requestId + 1);
             let distanceA1toB = google.maps.geometry.spherical.computeDistanceBetween(pointA1,pointB); //meters
-            if ( distanceA1toB < autoMovingDistance ) {
+            if ( distanceA1toB < this.state.autoMovingSpeed ) {
                if (targetPointIndex+1 == this.state.autoMovingPoints.length) {
                   if (this.state.autoMovingLoop)
                      this.setState({autoMovingIndex:0});
@@ -258,6 +258,10 @@ export default class App extends Component {
    
    handleLoopCheck = (checked) => {
       this.setState({autoMovingLoop:checked});
+   };
+   
+   handleAutoMovingSpeedChange = (speed) => {
+      this.setState({autoMovingSpeed:speed}); 
    };
    
    
@@ -288,6 +292,8 @@ export default class App extends Component {
                      targetIndex={this.state.autoMovingIndex}
                      onLoopCheck={this.handleLoopCheck}
                      deaultLoopChecked={this.state.autoMovingLoop}
+                     speed={this.state.autoMovingSpeed}
+                     onSpeedChange={this.handleAutoMovingSpeedChange}
                   />
                   
                   <MoveToSomewhere onPlacesChanged={this.handleMoveToSomewhere}/>
